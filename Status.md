@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Intake Forms Complete
+Notification Engine Complete
 
 ---
 
 Current Milestone
 
-Milestone 6 – Intake Forms (Complete)
+Milestone 7 – Notification Engine (Complete)
 
 ---
 
 Overall Progress
 
-50%
+58%
 
 ---
 
@@ -34,7 +34,7 @@ Milestone Status
 | Booking Engine | ✅ Complete |
 | Payments       | ✅ Complete |
 | Intake Forms   | ✅ Complete |
-| Notifications  | Pending     |
+| Notifications  | ✅ Complete |
 | Client Portal  | Pending     |
 | Admin Portal   | Pending     |
 | Analytics      | Pending     |
@@ -157,12 +157,29 @@ Intake engine in PostgreSQL (`20260723160001`–`20260723160002`) plus a compili
 
 ---
 
+Milestone 7 Deliverables
+
+Notification engine in PostgreSQL (`20260723170001`–`20260723170004`) + the
+`notifications-dispatch` Edge Function.
+
+- ✅ SMS channel added to the `notification_channel` enum (email + WhatsApp + SMS)
+- ✅ Notification queue (from M2) driven by RPCs: `enqueue_notification` (dedupe), `claim_due_notifications` (worker claim via FOR UPDATE SKIP LOCKED), `mark_notification_sent`, `mark_notification_failed`
+- ✅ Workers: `notifications-dispatch` Edge Function claims, renders, sends, and reports outcomes; authorized by the service-role key header
+- ✅ Retries: exponential backoff (2^attempts min, capped at 60) up to `max_attempts`, then terminal failure
+- ✅ Templates: versioned, per-channel `notification_templates` table with `{{placeholder}}` interpolation + seeded English defaults for all channels
+- ✅ Channel senders (gateway abstraction): Email (Resend), WhatsApp (Meta Cloud API), SMS (generic HTTP gateway)
+- ✅ Reminder scheduler: `schedule_booking_notifications` (confirmation + 24h reminder) and `enqueue_due_reminders` (cron sweep)
+- ✅ Review requests (post-visit) and rebooking reminders (~6 weeks later), deduplicated
+- ✅ Delivery logs: every attempt recorded in the `notifications` table
+- ✅ Scheduling: guarded pg_cron jobs (hold expiry + reminder sweep) and `private.setup_notification_dispatch` for the pg_net HTTP dispatch job
+
+---
+
 Verification
 
-- Milestone 1: `typecheck`, `lint`, `build` all pass. Still passing after M6
-  (which adds the intake feature to the app) — the Deno `supabase/` tree is
-  excluded from the app toolchain.
-- Milestones 2–6: all 22 SQL migrations + seed + both pgTAP test files parse
+- App `typecheck`, `lint`, `build` pass (unchanged by M7 — the engine is SQL +
+  a Deno function, both outside the app toolchain).
+- Milestones 2–7: all 26 SQL migrations + seed + both pgTAP test files parse
   cleanly against the PostgreSQL grammar (via `libpg-query`). Full execution
   (`supabase db reset`, `supabase test db`, `supabase functions serve`) requires
   Docker/the Supabase CLI, which is not installed in this environment — see
@@ -200,16 +217,16 @@ Current Blockers
 
 Last Review
 
-Milestone 6 – Intake Forms — intake engine RPCs + encryption and the
-`src/features/intake` module authored. SQL syntax-validated via `libpg-query`;
-app `typecheck`, `lint`, and `build` all pass.
+Milestone 7 – Notification Engine — queue RPCs, retry/backoff, templates,
+reminder scheduler, cron wiring, and the notifications-dispatch worker authored.
+SQL syntax-validated via `libpg-query`; app toolchain still green.
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 7 – Notification Engine (WhatsApp, Email,
-reminder engine, notification queue).
+Await approval, then begin Milestone 8 – Client Portal (dashboard, booking
+management, payments, intake forms).
 
 ---
 

@@ -48,3 +48,7 @@ verify_jwt = true
 # Authenticity is established by verifying the provider signature instead.
 [functions.payments-webhook]
 verify_jwt = false
+
+# Invoked by pg_cron via pg_net; authorized by the service-role key header.
+[functions.notifications-dispatch]
+verify_jwt = false
