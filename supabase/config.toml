@@ -1,0 +1,30 @@
+# Supabase local project configuration.
+# See https://supabase.com/docs/guides/cli/config for the full reference.
+
+project_id = "spa-booking-system"
+
+[db]
+# Port for the local Postgres database.
+port = 54322
+# Major version of Postgres. Must match the deployed project.
+major_version = 15
+
+[db.migrations]
+# Directory holding SQL migration files, applied in lexicographic order.
+schema_paths = []
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+# Auth is configured in detail in Milestone 3.
+site_url = "http://localhost:3000"
+
+[studio]
+enabled = true
+port = 54323

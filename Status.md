@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Foundation Complete
+Database Complete
 
 ---
 
 Current Milestone
 
-Milestone 1 – Project Foundation (Complete)
+Milestone 2 – Database (Complete)
 
 ---
 
 Overall Progress
 
-8%
+16%
 
 ---
 
@@ -29,7 +29,7 @@ Milestone Status
 | Milestone      | Status      |
 | -------------- | ----------- |
 | Foundation     | ✅ Complete |
-| Database       | Pending     |
+| Database       | ✅ Complete |
 | Authentication | Pending     |
 | Booking Engine | Pending     |
 | Payments       | Pending     |
@@ -48,7 +48,7 @@ Milestone 1 Deliverables
 - ✅ Next.js (App Router) + React 19 + TypeScript (strict, `noUncheckedIndexedAccess`)
 - ✅ Tailwind CSS + design tokens (light/dark) via CSS variables
 - ✅ Shadcn UI (Button, Card) + `components.json`
-- ✅ ESLint (next + typescript + prettier) — passes clean
+- ✅ ESLint (flat config: next + typescript + prettier) — passes clean
 - ✅ Prettier + `prettier-plugin-tailwindcss`
 - ✅ Husky + lint-staged (pre-commit hook)
 - ✅ Environment configuration with Zod validation (`src/lib/env.ts`) + `.env.example`
@@ -64,11 +64,34 @@ Milestone 1 Deliverables
 
 ---
 
+Milestone 2 Deliverables
+
+Schema delivered as ordered SQL migrations under `supabase/migrations/` plus
+`supabase/config.toml` and `supabase/seed.sql`.
+
+- ✅ Extensions: `pgcrypto` (UUIDs), `btree_gist` (exclusion constraints)
+- ✅ Enum types: roles, booking status, booking event type, payment provider/type/status, refund status, notification channel/type/status, form type, intake status, availability block type, audit action
+- ✅ Identity: `profiles` (1:1 auth.users), `clients`, `practitioners`
+- ✅ Catalog: `service_categories`, `services`, `rooms`, `practitioner_services`, `business_settings` (singleton)
+- ✅ Availability: `practitioner_availability` (recurring), `availability_blocks` (time off / holidays / maintenance)
+- ✅ Bookings: `bookings` with GiST **exclusion constraints preventing overlapping bookings per practitioner and per room** (buffers included), full state-machine status enum, hold-expiry index
+- ✅ Booking events: append-only `booking_events`, written automatically by trigger on creation and every status change
+- ✅ Payments: `payments` (idempotency key, provider reference), `refunds`, `payment_webhook_events` (at-most-once via unique `(provider, event_id)`)
+- ✅ Intake: `form_templates` (versioned JSON schema), `intake_forms` (medical-flagged), `consent_records` (signed, versioned)
+- ✅ Notifications: `notification_queue` (retry/scheduling, dedupe) + `notifications` (per-attempt delivery log)
+- ✅ Audit: central append-only `audit_logs` with before/after JSON, populated by trigger on all mutable business tables
+- ✅ Cross-cutting: every table has `id`, `created_at`, `updated_at` (trigger-maintained), `deleted_at` (soft delete); hard deletes blocked on business tables via `prevent_hard_delete`; indexes, FKs, and check constraints throughout
+- ✅ RLS enabled and forced (deny-by-default) on all 21 tables — policies come in Milestone 3
+- ✅ Seed: singleton `business_settings` row only (no demo data)
+
+---
+
 Verification
 
-- `npm run typecheck` — passes
-- `npm run lint` — passes (no warnings or errors)
-- `npm run build` — succeeds (4 routes, static)
+- Milestone 1: `typecheck`, `lint`, `build` all pass.
+- Milestone 2: all 13 SQL files parse cleanly against the PostgreSQL grammar
+  (via `libpg-query`). Full execution (`supabase db reset`) requires Docker/the
+  Supabase CLI, which is not installed in this environment — see Blockers.
 
 ---
 
@@ -84,26 +107,32 @@ Known Issues
 
 Technical Debt
 
-- `src/lib/supabase/types.ts` is a placeholder `Database` type. It will be
-  regenerated from the real schema in Milestone 2.
+- `src/lib/supabase/types.ts` is still a placeholder `Database` type. It must be
+  regenerated against a live project once the schema is applied:
+  `npx supabase gen types typescript --local > src/lib/supabase/types.ts`.
 
 ---
 
 Current Blockers
 
-None
+- No local PostgreSQL/Docker/Supabase CLI is available in this environment, so
+  migrations were validated by parsing (syntax) rather than by execution. They
+  should be run end-to-end with `supabase db reset` before deployment to confirm
+  runtime semantics (extension operator classes, trigger behaviour, exclusion
+  constraints). This does not block Milestone 3.
 
 ---
 
 Last Review
 
-Milestone 1 – Project Foundation — verified via typecheck, lint, and build.
+Milestone 2 – Database — SQL authored and syntax-validated via `libpg-query`.
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 2 – Database.
+Await approval, then begin Milestone 3 – Authentication & Security (RLS policies,
+roles, storage policies).
 
 ---
 
