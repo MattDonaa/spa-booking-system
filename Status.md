@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Payments Complete
+Intake Forms Complete
 
 ---
 
 Current Milestone
 
-Milestone 5 – Payments (Complete)
+Milestone 6 – Intake Forms (Complete)
 
 ---
 
 Overall Progress
 
-42%
+50%
 
 ---
 
@@ -33,7 +33,7 @@ Milestone Status
 | Authentication | ✅ Complete |
 | Booking Engine | ✅ Complete |
 | Payments       | ✅ Complete |
-| Intake Forms   | Pending     |
+| Intake Forms   | ✅ Complete |
 | Notifications  | Pending     |
 | Client Portal  | Pending     |
 | Admin Portal   | Pending     |
@@ -140,12 +140,29 @@ Payments only. SQL RPC (`20260723150001`) + Supabase Edge Functions under
 
 ---
 
+Milestone 6 Deliverables
+
+Intake engine in PostgreSQL (`20260723160001`–`20260723160002`) plus a compiling
+`src/features/intake` feature module.
+
+- ✅ Dynamic templates: JSON field-schema templates rendered by a generic form renderer (`DynamicIntakeForm` + `FieldRenderer`) supporting text/textarea/number/date/select/radio/checkbox/boolean
+- ✅ Versioning: `create_template_version` publishes a new version per slug (admin)
+- ✅ Medical questionnaires: `is_medical` templates and form instances
+- ✅ Encrypted storage (POPIA): medical responses encrypted at rest with pgcrypto PGP symmetric cipher, key from Supabase Vault; decryption only inside authorization-checked RPCs
+- ✅ Practitioner-only access: `can_access_intake` limits reads to the owning client, the assigned practitioner, and admins (on top of RLS)
+- ✅ Submission flow: `instantiate_intake_forms` → autosave (`save_intake_response`) → `submit_intake_form`
+- ✅ Validation: server-side required-field validation (`validate_intake`) mirrored client-side via a dynamically built Zod validator
+- ✅ Autosave: debounced `useAutosave` hook + partial-merge autosave RPC, with save status indicator
+- ✅ Electronic signatures & consent tracking: canvas `SignaturePad` + `record_consent` (versioned, captures signature/IP/user-agent)
+
+---
+
 Verification
 
-- Milestone 1: `typecheck`, `lint`, `build` all pass. After M5, `typecheck` and
-  `lint` still pass (the Deno `supabase/` tree is excluded from the app
-  toolchain and linted separately with Deno).
-- Milestones 2–5: all 20 SQL migrations + seed + both pgTAP test files parse
+- Milestone 1: `typecheck`, `lint`, `build` all pass. Still passing after M6
+  (which adds the intake feature to the app) — the Deno `supabase/` tree is
+  excluded from the app toolchain.
+- Milestones 2–6: all 22 SQL migrations + seed + both pgTAP test files parse
   cleanly against the PostgreSQL grammar (via `libpg-query`). Full execution
   (`supabase db reset`, `supabase test db`, `supabase functions serve`) requires
   Docker/the Supabase CLI, which is not installed in this environment — see
@@ -183,16 +200,16 @@ Current Blockers
 
 Last Review
 
-Milestone 5 – Payments — SQL RPCs, gateway abstraction, and Edge Functions
-authored; SQL syntax-validated via `libpg-query`; app `typecheck`/`lint` pass.
-Deno function execution pending a Supabase/Docker environment.
+Milestone 6 – Intake Forms — intake engine RPCs + encryption and the
+`src/features/intake` module authored. SQL syntax-validated via `libpg-query`;
+app `typecheck`, `lint`, and `build` all pass.
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 6 – Intake Forms (dynamic forms, consent,
-versioning, medical forms).
+Await approval, then begin Milestone 7 – Notification Engine (WhatsApp, Email,
+reminder engine, notification queue).
 
 ---
 
