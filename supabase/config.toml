@@ -22,8 +22,13 @@ max_rows = 1000
 
 [auth]
 enabled = true
-# Auth is configured in detail in Milestone 3.
 site_url = "http://localhost:3000"
+
+# Injects the application role (client/practitioner/admin) into the JWT as the
+# `user_role` claim. Implemented by private.custom_access_token_hook.
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/private/custom_access_token_hook"
 
 [studio]
 enabled = true

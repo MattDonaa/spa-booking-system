@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Database Complete
+Authentication & Security Complete
 
 ---
 
 Current Milestone
 
-Milestone 2 – Database (Complete)
+Milestone 3 – Authentication & Security (Complete)
 
 ---
 
 Overall Progress
 
-16%
+25%
 
 ---
 
@@ -30,7 +30,7 @@ Milestone Status
 | -------------- | ----------- |
 | Foundation     | ✅ Complete |
 | Database       | ✅ Complete |
-| Authentication | Pending     |
+| Authentication | ✅ Complete |
 | Booking Engine | Pending     |
 | Payments       | Pending     |
 | Intake Forms   | Pending     |
@@ -86,12 +86,30 @@ Schema delivered as ordered SQL migrations under `supabase/migrations/` plus
 
 ---
 
+Milestone 3 Deliverables
+
+Security model delivered as SQL migrations `20260723130001`–`20260723130005`.
+
+- ✅ Auth helpers (`private` schema, SECURITY DEFINER, RLS-safe): `current_app_role`, `is_admin`, `is_practitioner`, `is_staff`, `current_client_id`, `current_practitioner_id`
+- ✅ Roles & permissions: anon (public catalog only), authenticated (row-scoped), client, practitioner, admin, and service-role separation
+- ✅ New-user provisioning trigger (`handle_new_user`) creating a profile (+ client row) on `auth.users` insert
+- ✅ Role-change guard trigger — only admins may change a profile's role
+- ✅ JWT handling: `custom_access_token_hook` injecting a `user_role` claim, wired in `config.toml`
+- ✅ RLS policies on **all 21 tables** — SELECT/INSERT/UPDATE, no DELETE (soft-delete only)
+- ✅ Medical record protection: `intake_forms` / `consent_records` visible only to the owning client, the assigned practitioner, and admins (POPIA)
+- ✅ Service-role separation: payments, refunds, webhook events, notifications, and audit logs are written only by the service role (no write policies); webhook events have no read policy either
+- ✅ RPC permissions: `EXECUTE` revoked from `anon`/`authenticated`/`public` on functions plus default privileges locked, so future RPCs must opt in explicitly (Milestone 4)
+- ✅ Storage: `avatars` (public), `intake-documents` & `consent-documents` (private) buckets with owner/staff/admin `storage.objects` policies; private medical buckets never publicly accessible
+
+---
+
 Verification
 
 - Milestone 1: `typecheck`, `lint`, `build` all pass.
-- Milestone 2: all 13 SQL files parse cleanly against the PostgreSQL grammar
-  (via `libpg-query`). Full execution (`supabase db reset`) requires Docker/the
-  Supabase CLI, which is not installed in this environment — see Blockers.
+- Milestones 2–3: all 17 SQL migrations + seed parse cleanly against the
+  PostgreSQL grammar (via `libpg-query`). Full execution (`supabase db reset`)
+  requires Docker/the Supabase CLI, which is not installed in this environment
+  — see Blockers.
 
 ---
 
@@ -125,14 +143,15 @@ Current Blockers
 
 Last Review
 
-Milestone 2 – Database — SQL authored and syntax-validated via `libpg-query`.
+Milestone 3 – Authentication & Security — SQL authored and syntax-validated via
+`libpg-query`.
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 3 – Authentication & Security (RLS policies,
-roles, storage policies).
+Await approval, then begin Milestone 4 – Booking Engine (RPC booking engine,
+availability engine, locking, hold logic, state machine, buffer times).
 
 ---
 
