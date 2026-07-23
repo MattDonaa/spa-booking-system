@@ -33,3 +33,18 @@ uri = "pg-functions://postgres/private/custom_access_token_hook"
 [studio]
 enabled = true
 port = 54323
+
+# ----------------------------------------------------------------------------
+# Edge Functions
+# ----------------------------------------------------------------------------
+# Authenticated payment endpoints require a valid Supabase JWT.
+[functions.payments-initiate]
+verify_jwt = true
+
+[functions.payments-refund]
+verify_jwt = true
+
+# The provider webhook is called by PayFast/Ozow, which do not send a JWT.
+# Authenticity is established by verifying the provider signature instead.
+[functions.payments-webhook]
+verify_jwt = false

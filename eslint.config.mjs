@@ -23,6 +23,8 @@ const eslintConfig = [
       'out/**',
       'build/**',
       'next-env.d.ts',
+      // Deno Edge Functions: different runtime/toolchain, linted separately.
+      'supabase/**',
     ],
   },
   {

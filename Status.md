@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Booking Engine Complete
+Payments Complete
 
 ---
 
 Current Milestone
 
-Milestone 4 – Booking Engine (Complete)
+Milestone 5 – Payments (Complete)
 
 ---
 
 Overall Progress
 
-33%
+42%
 
 ---
 
@@ -32,7 +32,7 @@ Milestone Status
 | Database       | ✅ Complete |
 | Authentication | ✅ Complete |
 | Booking Engine | ✅ Complete |
-| Payments       | Pending     |
+| Payments       | ✅ Complete |
 | Intake Forms   | Pending     |
 | Notifications  | Pending     |
 | Client Portal  | Pending     |
@@ -122,13 +122,34 @@ Booking engine implemented entirely in PostgreSQL (migrations `20260723140001`�
 
 ---
 
+Milestone 5 Deliverables
+
+Payments only. SQL RPC (`20260723150001`) + Supabase Edge Functions under
+`supabase/functions/`.
+
+- ✅ Payment engine RPCs (state in Postgres, never trusted from client): `initiate_payment` (idempotent, amount computed server-side), `record_payment_event` (verified webhook applied exactly once, advances booking), `initiate_refund`, `record_refund_event`
+- ✅ Idempotency: payment/refund `idempotency_key` uniqueness + at-most-once webhook processing via unique `(provider, event_id)`
+- ✅ Gateway abstraction: single `PaymentGateway` interface (`buildRedirect`, `verifyWebhook`, `refund`) + factory; Edge Functions are provider-agnostic
+- ✅ PayFast gateway: MD5-signed redirect, ITN signature verification, refund API call
+- ✅ Ozow gateway: SHA-512 HashCheck redirect, notification hash verification, refund API call
+- ✅ Signature verification: enforced in each gateway; unverified webhooks recorded (forensics) and rejected
+- ✅ Edge Functions: `payments-initiate` (JWT, user-scoped RPC), `payments-webhook` (public, signature-verified, service role), `payments-refund` (JWT, staff/admin)
+- ✅ Retry logic: webhook returns 5xx on transient/DB errors (provider re-delivers), 4xx on permanent failures (no retry), 200 on success/already-processed
+- ✅ Audit logging: automatic via the `record_audit` triggers on `payments`/`refunds`
+- ✅ Service-role separation: webhook appliers are service-role only; JWT verification configured per function in `config.toml`
+
+---
+
 Verification
 
-- Milestone 1: `typecheck`, `lint`, `build` all pass.
-- Milestones 2–4: all 19 SQL migrations + seed + both pgTAP test files parse
+- Milestone 1: `typecheck`, `lint`, `build` all pass. After M5, `typecheck` and
+  `lint` still pass (the Deno `supabase/` tree is excluded from the app
+  toolchain and linted separately with Deno).
+- Milestones 2–5: all 20 SQL migrations + seed + both pgTAP test files parse
   cleanly against the PostgreSQL grammar (via `libpg-query`). Full execution
-  (`supabase db reset`, `supabase test db`) requires Docker/the Supabase CLI,
-  which is not installed in this environment — see Blockers.
+  (`supabase db reset`, `supabase test db`, `supabase functions serve`) requires
+  Docker/the Supabase CLI, which is not installed in this environment — see
+  Blockers.
 
 ---
 
@@ -162,15 +183,16 @@ Current Blockers
 
 Last Review
 
-Milestone 4 – Booking Engine — SQL + pgTAP tests authored and syntax-validated
-via `libpg-query`. Execution pending a Supabase/Docker environment.
+Milestone 5 – Payments — SQL RPCs, gateway abstraction, and Edge Functions
+authored; SQL syntax-validated via `libpg-query`; app `typecheck`/`lint` pass.
+Deno function execution pending a Supabase/Docker environment.
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 5 – Payments (PayFast, Ozow, Edge
-Functions, webhooks, idempotency).
+Await approval, then begin Milestone 6 – Intake Forms (dynamic forms, consent,
+versioning, medical forms).
 
 ---
 
