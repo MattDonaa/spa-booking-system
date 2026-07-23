@@ -45,7 +45,26 @@ export async function updateSession(
   );
 
   // Touching the user refreshes the session token if needed. Never remove.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Protect the client portal: unauthenticated visitors are sent to login.
+  const { pathname } = request.nextUrl;
+  if (!user && pathname.startsWith('/portal')) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    loginUrl.searchParams.set('redirectTo', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Keep authenticated users out of the auth pages.
+  if (user && (pathname === '/login' || pathname === '/signup')) {
+    const portalUrl = request.nextUrl.clone();
+    portalUrl.pathname = '/portal';
+    portalUrl.search = '';
+    return NextResponse.redirect(portalUrl);
+  }
 
   return response;
 }

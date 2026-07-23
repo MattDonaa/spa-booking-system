@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Notification Engine Complete
+Client Portal Complete
 
 ---
 
 Current Milestone
 
-Milestone 7 – Notification Engine (Complete)
+Milestone 8 – Client Portal (Complete)
 
 ---
 
 Overall Progress
 
-58%
+67%
 
 ---
 
@@ -35,7 +35,7 @@ Milestone Status
 | Payments       | ✅ Complete |
 | Intake Forms   | ✅ Complete |
 | Notifications  | ✅ Complete |
-| Client Portal  | Pending     |
+| Client Portal  | ✅ Complete |
 | Admin Portal   | Pending     |
 | Analytics      | Pending     |
 | Testing        | Pending     |
@@ -175,11 +175,30 @@ Notification engine in PostgreSQL (`20260723170001`–`20260723170004`) + the
 
 ---
 
+Milestone 8 Deliverables
+
+Client portal (`src/app/(portal)`, `src/features/{auth,portal}`) on client-scoped
+read RPCs (`20260723180001`). Nothing admin.
+
+- ✅ Auth: email/password sign in/up/out server actions; `/login` + `/signup`; middleware guards `/portal` and bounces signed-in users off the auth pages; new accounts provisioned via the M3 signup trigger
+- ✅ Dashboard: upcoming-appointment and pending-form counts + next appointments
+- ✅ Bookings: upcoming/past tabs; detail page with appointment, intake forms, and payments
+- ✅ Reschedule & Cancel: client actions calling the M4 RPCs (cancellation window + availability enforced server-side)
+- ✅ Payments & Invoices: payment history list + per-payment invoice view
+- ✅ Forms: list of the client's intake forms + fill flow reusing the M6 `DynamicIntakeForm`
+- ✅ History: past bookings tab
+- ✅ Profile: view/edit name, phone, DOB, emergency contact, marketing opt-in
+- ✅ Client-portal read RPCs: `get_my_profile`, `update_my_profile`, `list_my_bookings`, `get_my_booking`, `list_my_payments`, `list_my_intake_forms` (all client-scoped, JSON envelopes)
+- ✅ New shared UI/util: `Badge`, `Input`, `Label`, `Textarea`, money/date formatters, RPC unwrap helper
+
+---
+
 Verification
 
-- App `typecheck`, `lint`, `build` pass (unchanged by M7 — the engine is SQL +
-  a Deno function, both outside the app toolchain).
-- Milestones 2–7: all 26 SQL migrations + seed + both pgTAP test files parse
+- App `typecheck`, `lint`, and `build` all pass (12 routes; portal routes are
+  server-rendered on demand, auth pages static). Note: `experimental.typedRoutes`
+  was disabled so the standalone `tsc` typecheck resolves without a prior build.
+- Milestones 2–8: all 27 SQL migrations + seed + both pgTAP test files parse
   cleanly against the PostgreSQL grammar (via `libpg-query`). Full execution
   (`supabase db reset`, `supabase test db`, `supabase functions serve`) requires
   Docker/the Supabase CLI, which is not installed in this environment — see
@@ -217,16 +236,16 @@ Current Blockers
 
 Last Review
 
-Milestone 7 – Notification Engine — queue RPCs, retry/backoff, templates,
-reminder scheduler, cron wiring, and the notifications-dispatch worker authored.
-SQL syntax-validated via `libpg-query`; app toolchain still green.
+Milestone 8 – Client Portal — auth flow, portal routes, and client-scoped read
+RPCs authored. SQL syntax-validated via `libpg-query`; app `typecheck`, `lint`,
+and `build` all pass.
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 8 – Client Portal (dashboard, booking
-management, payments, intake forms).
+Await approval, then begin Milestone 9 – Admin Portal (calendar, practitioner
+management, services, reports, settings).
 
 ---
 
