@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Authentication & Security Complete
+Booking Engine Complete
 
 ---
 
 Current Milestone
 
-Milestone 3 – Authentication & Security (Complete)
+Milestone 4 – Booking Engine (Complete)
 
 ---
 
 Overall Progress
 
-25%
+33%
 
 ---
 
@@ -31,7 +31,7 @@ Milestone Status
 | Foundation     | ✅ Complete |
 | Database       | ✅ Complete |
 | Authentication | ✅ Complete |
-| Booking Engine | Pending     |
+| Booking Engine | ✅ Complete |
 | Payments       | Pending     |
 | Intake Forms   | Pending     |
 | Notifications  | Pending     |
@@ -103,13 +103,32 @@ Security model delivered as SQL migrations `20260723130001`–`20260723130005`.
 
 ---
 
+Milestone 4 Deliverables
+
+Booking engine implemented entirely in PostgreSQL (migrations `20260723140001`–
+`20260723140002`); the frontend never inserts bookings directly.
+
+- ✅ State machine: `is_valid_booking_transition(from, to)` — pure, exhaustive
+- ✅ Availability engine: `get_available_slots(service, from, to, practitioner?, step?)` honouring working hours, buffer times, existing bookings, blocks/holidays, room availability, lead time, and the max future window
+- ✅ `create_booking(...)` RPC — transactional hold with `pg_advisory_xact_lock` per practitioner/room, `FOR UPDATE SKIP LOCKED` room auto-assignment, full validation, deposit calculation, and structured JSON responses; the GiST exclusion constraints are the final backstop
+- ✅ `transition_booking(...)` — state-machine-validated status changes with `FOR UPDATE` row locking
+- ✅ `cancel_booking(...)` — enforces the client cancellation window (staff/admin bypass)
+- ✅ `reschedule_booking(...)` — re-validates availability under a lock, preserves identity, records a `rescheduled` event
+- ✅ `expire_booking_holds()` — hold-expiry sweep (service-role only; wired to pg_cron in a later milestone)
+- ✅ Buffer times, working hours, blocked dates, holiday support, lead times, and max booking window all enforced
+- ✅ Structured `{ ok, data | error:{code,message} }` responses mirroring the app's `Result<T>`
+- ✅ RPC permissions: `EXECUTE` granted explicitly to `authenticated`/`service_role` per function; the expiry sweep is service-role only
+- ✅ Tests: pgTAP suites in `supabase/tests/` — 16 state-machine assertions + 12 engine assertions (create, double-book conflict, lead-time, transitions, hold expiry, availability re-offer)
+
+---
+
 Verification
 
 - Milestone 1: `typecheck`, `lint`, `build` all pass.
-- Milestones 2–3: all 17 SQL migrations + seed parse cleanly against the
-  PostgreSQL grammar (via `libpg-query`). Full execution (`supabase db reset`)
-  requires Docker/the Supabase CLI, which is not installed in this environment
-  — see Blockers.
+- Milestones 2–4: all 19 SQL migrations + seed + both pgTAP test files parse
+  cleanly against the PostgreSQL grammar (via `libpg-query`). Full execution
+  (`supabase db reset`, `supabase test db`) requires Docker/the Supabase CLI,
+  which is not installed in this environment — see Blockers.
 
 ---
 
@@ -143,15 +162,15 @@ Current Blockers
 
 Last Review
 
-Milestone 3 – Authentication & Security — SQL authored and syntax-validated via
-`libpg-query`.
+Milestone 4 – Booking Engine — SQL + pgTAP tests authored and syntax-validated
+via `libpg-query`. Execution pending a Supabase/Docker environment.
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 4 – Booking Engine (RPC booking engine,
-availability engine, locking, hold logic, state machine, buffer times).
+Await approval, then begin Milestone 5 – Payments (PayFast, Ozow, Edge
+Functions, webhooks, idempotency).
 
 ---
 
