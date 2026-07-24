@@ -25,6 +25,11 @@ const eslintConfig = [
       'next-env.d.ts',
       // Deno Edge Functions: different runtime/toolchain, linted separately.
       'supabase/**',
+      // Performance scripts (k6 runtime) and test artifacts.
+      'perf/**',
+      'playwright-report/**',
+      'test-results/**',
+      'coverage/**',
     ],
   },
   {

@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Analytics Complete
+Testing Complete
 
 ---
 
 Current Milestone
 
-Milestone 10 – Analytics (Complete)
+Milestone 11 – Testing (Complete)
 
 ---
 
 Overall Progress
 
-83%
+92%
 
 ---
 
@@ -38,7 +38,7 @@ Milestone Status
 | Client Portal  | ✅ Complete |
 | Admin Portal   | ✅ Complete |
 | Analytics      | ✅ Complete |
-| Testing        | Pending     |
+| Testing        | ✅ Complete |
 | Deployment     | Pending     |
 
 ---
@@ -233,14 +233,31 @@ Analytics (`/admin/analytics`) on admin-gated aggregate RPCs (`20260723200001`).
 
 ---
 
+Milestone 11 Deliverables
+
+Test suites across the stack.
+
+- ✅ Unit tests (Vitest): formatters, RPC unwrap/`Result` mapping, dynamic intake Zod validator/defaults — **all runnable and passing here**
+- ✅ Component + accessibility tests (Vitest + Testing Library + vitest-axe): `StatusBadge`, chart components — assert render + zero axe violations
+- ✅ RPC tests (pgTAP): payment engine idempotency, intake instantiate/autosave/validate/submit, notification enqueue/claim/retry
+- ✅ Webhook tests (pgTAP): duplicate `(provider, event_id)` no-op, unverified-signature rejection, booking advancement on success
+- ✅ RLS tests (pgTAP): a client sees only their own bookings under the `authenticated` role + JWT
+- ✅ Concurrency tests (pgTAP): exclusion-constraint backstop rejects overlapping inserts; engine returns clean `CONFLICT`
+- ✅ Playwright e2e: auth flows, portal/admin route guards, public smoke, and 404
+- ✅ Accessibility e2e (`@axe-core/playwright`): WCAG 2 A/AA scan of public pages
+- ✅ Performance test (k6): ramping-VU load test of the availability RPC with p95 threshold
+- ✅ Tooling: `vitest.config.mts`, jsdom + jest-dom setup, `playwright.config.ts`, `npm test` / `npm run test:e2e`
+
+---
+
 Verification
 
-- App `typecheck`, `lint`, and `build` all pass — **25 routes** (14 admin + 9
-  portal + home + auth); admin/portal server-rendered on demand.
-- Milestones 2–10: all 29 SQL migrations + seed + both pgTAP test files parse
-  cleanly against the PostgreSQL grammar (via `libpg-query`). Full execution
-  (`supabase db reset`, `supabase test db`, `supabase functions serve`) requires
-  Docker/the Supabase CLI, which is not installed in this environment — see
+- **`npm test` passes: 21/21 unit + component + a11y tests green.**
+- App `typecheck`, `lint`, and `build` all pass — **25 routes**.
+- Milestones 2–11: all 29 SQL migrations + seed + **7 pgTAP test files** parse
+  cleanly against the PostgreSQL grammar (via `libpg-query`). Executing the pgTAP
+  suites (`supabase test db`), Playwright (browsers), and k6 requires
+  Docker/the Supabase CLI/browsers, not installed in this environment — see
   Blockers.
 
 ---
@@ -275,16 +292,17 @@ Current Blockers
 
 Last Review
 
-Milestone 10 – Analytics — aggregate RPCs and the analytics dashboard authored.
-SQL syntax-validated via `libpg-query`; app `typecheck`, `lint`, and `build` all
-pass (25 routes).
+Milestone 11 – Testing — Vitest unit/component/a11y suites (21 passing), pgTAP
+RPC/webhook/RLS/concurrency suites, Playwright e2e + accessibility specs, and a
+k6 performance script. `npm test`, `typecheck`, `lint`, `build` all green; SQL
+syntax-validated.
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 11 – Testing (unit, integration, Playwright,
-concurrency tests).
+Await approval, then begin Milestone 12 – Deployment (production build, CI/CD,
+Docker, monitoring, documentation).
 
 ---
 
