@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Admin Portal Complete
+Analytics Complete
 
 ---
 
 Current Milestone
 
-Milestone 9 – Admin Portal (Complete)
+Milestone 10 – Analytics (Complete)
 
 ---
 
 Overall Progress
 
-75%
+83%
 
 ---
 
@@ -37,7 +37,7 @@ Milestone Status
 | Notifications  | ✅ Complete |
 | Client Portal  | ✅ Complete |
 | Admin Portal   | ✅ Complete |
-| Analytics      | Pending     |
+| Analytics      | ✅ Complete |
 | Testing        | Pending     |
 | Deployment     | Pending     |
 
@@ -216,11 +216,28 @@ Admin portal (`src/app/(admin)`, `src/features/admin`) on admin-guarded RPCs
 
 ---
 
+Milestone 10 Deliverables
+
+Analytics (`/admin/analytics`) on admin-gated aggregate RPCs (`20260723200001`).
+
+- ✅ Revenue: daily revenue column chart + total; refunds
+- ✅ Conversion: created→confirmed conversion rate
+- ✅ Abandoned bookings: expired-hold count
+- ✅ Occupancy / practitioner utilisation: booked vs available minutes from the recurring schedule, per practitioner
+- ✅ Popular treatments: bookings + revenue per service (bar list)
+- ✅ No-shows and cancellation trends: booking-outcome breakdown
+- ✅ Average booking value: mean completed-booking price
+- ✅ Lifetime value: average LTV + top clients by spend
+- ✅ Analytics RPCs: `analytics_overview`, `analytics_services`, `analytics_practitioners`, `analytics_clients`
+- ✅ Lightweight, dependency-free, theme-aware charts (`StatTile`, `BarList`, `ColumnChart`)
+
+---
+
 Verification
 
-- App `typecheck`, `lint`, and `build` all pass — **24 routes** (13 admin + 9
+- App `typecheck`, `lint`, and `build` all pass — **25 routes** (14 admin + 9
   portal + home + auth); admin/portal server-rendered on demand.
-- Milestones 2–9: all 28 SQL migrations + seed + both pgTAP test files parse
+- Milestones 2–10: all 29 SQL migrations + seed + both pgTAP test files parse
   cleanly against the PostgreSQL grammar (via `libpg-query`). Full execution
   (`supabase db reset`, `supabase test db`, `supabase functions serve`) requires
   Docker/the Supabase CLI, which is not installed in this environment — see
@@ -258,16 +275,16 @@ Current Blockers
 
 Last Review
 
-Milestone 9 – Admin Portal — admin RPCs and the full admin UI authored. SQL
-syntax-validated via `libpg-query`; app `typecheck`, `lint`, and `build` all
-pass (24 routes).
+Milestone 10 – Analytics — aggregate RPCs and the analytics dashboard authored.
+SQL syntax-validated via `libpg-query`; app `typecheck`, `lint`, and `build` all
+pass (25 routes).
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 10 – Analytics (revenue, occupancy, booking
-trends, practitioner performance).
+Await approval, then begin Milestone 11 – Testing (unit, integration, Playwright,
+concurrency tests).
 
 ---
 
