@@ -8,19 +8,19 @@ Day Spa & Wellness Booking System
 
 Current Phase
 
-Client Portal Complete
+Admin Portal Complete
 
 ---
 
 Current Milestone
 
-Milestone 8 – Client Portal (Complete)
+Milestone 9 – Admin Portal (Complete)
 
 ---
 
 Overall Progress
 
-67%
+75%
 
 ---
 
@@ -36,7 +36,7 @@ Milestone Status
 | Intake Forms   | ✅ Complete |
 | Notifications  | ✅ Complete |
 | Client Portal  | ✅ Complete |
-| Admin Portal   | Pending     |
+| Admin Portal   | ✅ Complete |
 | Analytics      | Pending     |
 | Testing        | Pending     |
 | Deployment     | Pending     |
@@ -193,12 +193,34 @@ read RPCs (`20260723180001`). Nothing admin.
 
 ---
 
+Milestone 9 Deliverables
+
+Admin portal (`src/app/(admin)`, `src/features/admin`) on admin-guarded RPCs
+(`20260723190001`). Admin-only: the layout redirects non-admins to `/portal`.
+
+- ✅ Dashboard: today's/upcoming bookings, pending payments, month revenue, active practitioners, pending forms
+- ✅ Calendar: 14-day schedule grouped by day
+- ✅ Bookings: filterable list with client/practitioner/service/room
+- ✅ Practitioners: edit title/bio/specialties and activate/deactivate
+- ✅ Services: create/edit/toggle (duration, buffers, price, deposit, room/intake flags)
+- ✅ Rooms: create/edit/toggle (capacity, features)
+- ✅ Availability: per-practitioner schedule + blocks, with add-block
+- ✅ Payments: 30-day payment list
+- ✅ Forms: versioned template inventory
+- ✅ Reports: bookings/revenue/refunds summary (deeper analytics in M10)
+- ✅ Notification centre: queue + delivery status with retry for failed messages
+- ✅ Audit logs: 100 most recent mutations
+- ✅ Settings: full business-settings editor
+- ✅ Admin RPCs: dashboard, list bookings/payments/audit/notifications/templates, practitioner update, service/room upsert, availability list + add block, settings get/update, reports, notification retry — all `is_admin`/`is_staff`-gated
+- ✅ New shared UI: `Table` primitive
+
+---
+
 Verification
 
-- App `typecheck`, `lint`, and `build` all pass (12 routes; portal routes are
-  server-rendered on demand, auth pages static). Note: `experimental.typedRoutes`
-  was disabled so the standalone `tsc` typecheck resolves without a prior build.
-- Milestones 2–8: all 27 SQL migrations + seed + both pgTAP test files parse
+- App `typecheck`, `lint`, and `build` all pass — **24 routes** (13 admin + 9
+  portal + home + auth); admin/portal server-rendered on demand.
+- Milestones 2–9: all 28 SQL migrations + seed + both pgTAP test files parse
   cleanly against the PostgreSQL grammar (via `libpg-query`). Full execution
   (`supabase db reset`, `supabase test db`, `supabase functions serve`) requires
   Docker/the Supabase CLI, which is not installed in this environment — see
@@ -236,16 +258,16 @@ Current Blockers
 
 Last Review
 
-Milestone 8 – Client Portal — auth flow, portal routes, and client-scoped read
-RPCs authored. SQL syntax-validated via `libpg-query`; app `typecheck`, `lint`,
-and `build` all pass.
+Milestone 9 – Admin Portal — admin RPCs and the full admin UI authored. SQL
+syntax-validated via `libpg-query`; app `typecheck`, `lint`, and `build` all
+pass (24 routes).
 
 ---
 
 Next Action
 
-Await approval, then begin Milestone 9 – Admin Portal (calendar, practitioner
-management, services, reports, settings).
+Await approval, then begin Milestone 10 – Analytics (revenue, occupancy, booking
+trends, practitioner performance).
 
 ---
 
