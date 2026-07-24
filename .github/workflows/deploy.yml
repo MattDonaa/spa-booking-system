@@ -1,0 +1,92 @@
+name: Deploy
+
+# Deploys on push to the default branch after CI passes. Requires repository
+# secrets:
+#   SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF, SUPABASE_DB_PASSWORD
+#   VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID   (or your host of choice)
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # --------------------------------------------------------------------------
+  # 1) Database: push migrations to the production Supabase project.
+  # --------------------------------------------------------------------------
+  migrate:
+    name: Apply DB migrations
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Link project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+        env:
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      - name: Push migrations
+        run: supabase db push
+        env:
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      - name: Deploy Edge Functions
+        run: |
+          supabase functions deploy payments-initiate
+          supabase functions deploy payments-webhook --no-verify-jwt
+          supabase functions deploy payments-refund
+          supabase functions deploy notifications-dispatch --no-verify-jwt
+
+  # --------------------------------------------------------------------------
+  # 2) App: deploy the web app (Vercel shown; swap for your Docker registry).
+  # --------------------------------------------------------------------------
+  deploy-app:
+    name: Deploy web app
+    runs-on: ubuntu-latest
+    needs: migrate
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm i -g vercel@latest
+      - name: Pull Vercel env
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Build
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+  # --------------------------------------------------------------------------
+  # 3) Post-deploy smoke: verify the health endpoint.
+  # --------------------------------------------------------------------------
+  smoke:
+    name: Post-deploy health check
+    runs-on: ubuntu-latest
+    needs: deploy-app
+    steps:
+      - name: Check /api/health
+        run: |
+          for i in $(seq 1 10); do
+            if curl -fsS "${{ vars.PRODUCTION_URL }}/api/health" | grep -q '"status":"ok"'; then
+              echo "Health check passed."; exit 0
+            fi
+            echo "Attempt $i failed; retrying..."; sleep 10
+          done
+          echo "Health check did not pass."; exit 1

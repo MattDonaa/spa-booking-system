@@ -81,6 +81,33 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run format`       | Format all files with Prettier             |
 | `npm run format:check` | Check formatting without writing           |
 | `npm run typecheck`    | Type-check the project with `tsc --noEmit` |
+| `npm run validate-env` | Verify required environment variables      |
+| `npm test`             | Unit, component, and accessibility tests   |
+| `npm run test:e2e`     | Playwright end-to-end tests                |
+
+---
+
+## Testing
+
+- **Unit / component / a11y** — Vitest + Testing Library + `vitest-axe`
+  (`npm test`).
+- **Database (RPC / webhook / RLS / concurrency)** — pgTAP in `supabase/tests/`
+  (`supabase test db`).
+- **End-to-end + accessibility** — Playwright in `e2e/` (`npm run test:e2e`).
+- **Performance** — k6 script in `perf/`.
+
+## Deployment
+
+Production build emits a standalone server (`output: 'standalone'`) for a slim
+Docker image; a `Dockerfile` and `docker-compose.yml` are included. CI/CD runs
+via GitHub Actions (`.github/workflows/`). See the guides:
+
+- [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) — full deployment reference
+- [`docs/LAUNCH_GUIDE.md`](./docs/LAUNCH_GUIDE.md) — step-by-step go-live
+- [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md) — readiness gate
+- [`docs/MONITORING.md`](./docs/MONITORING.md) — health checks & observability
+
+Health endpoint: `GET /api/health`.
 
 ---
 

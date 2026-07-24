@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Emit a self-contained server bundle for a slim production Docker image.
+  output: 'standalone',
   async headers() {
     return [
       {
